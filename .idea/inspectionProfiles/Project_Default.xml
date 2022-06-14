@@ -1,0 +1,24 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="AutoCloseableResource" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="METHOD_MATCHER_CONFIG" value="java.util.Formatter,format,java.io.Writer,append,com.google.common.base.Preconditions,checkNotNull,org.hibernate.Session,close,java.io.PrintWriter,printf,java.io.PrintStream,printf,okhttp3.Call,execute" />
+    </inspection_tool>
+    <inspection_tool class="IncorrectHttpHeaderInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="customHeaders">
+        <set>
+          <option value="mini_version" />
+          <option value="program_start" />
+          <option value="interface_id" />
+          <option value="client_source" />
+          <option value="app_version" />
+          <option value="request_time" />
+          <option value="Service-Id" />
+          <option value="trace_id" />
+          <option value="timestamp" />
+          <option value="nonce" />
+        </set>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>

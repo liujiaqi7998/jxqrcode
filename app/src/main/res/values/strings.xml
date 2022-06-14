@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">小奇吉祥码小工具</string>
+    <string name="title_txt">小奇吉祥码小工具</string>
+    <string name="tip_txt">请填写qr-color-search的数据\n这个是个人密钥，注意安全请勿泄露</string>
+    <string name="get_but_txt">获取二维码</string>
+    <string name="expire_txt">到期时间：</string>
+    <string name="todo">TODO</string>
+</resources>
