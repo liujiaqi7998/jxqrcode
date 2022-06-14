@@ -5,80 +5,85 @@
     <!--网络权限-->
     <uses-permission android:name="android.permission.INTERNET"/>
     <!--屏幕解锁状态权限-->
-    <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT"/>
     <!--前台服务-->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <!--Android Q之后不需要存储权限，完全使用MediaStore API来实现-->
     <uses-permission
             android:name="android.permission.READ_EXTERNAL_STORAGE"
-            android:maxSdkVersion="28" />
+            android:maxSdkVersion="28"/>
     <uses-permission
             android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-            android:maxSdkVersion="28" />
+            android:maxSdkVersion="28"/>
 
     <application
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
-        android:theme="@style/Theme.小奇吉祥码小工具">
-        <activity
-            android:name=".MainActivity"
+            android:allowBackup="true"
+            android:icon="@mipmap/ic_launcher"
             android:label="@string/app_name"
-            android:theme="@style/Theme.小奇吉祥码小工具.NoActionBar">
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:supportsRtl="true"
+            android:theme="@style/Theme.小奇吉祥码小工具">
+        <activity
+                android:name=".MainActivity"
+                android:label="@string/app_name"
+                android:theme="@style/Theme.小奇吉祥码小工具.NoActionBar">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
         <receiver android:name=".SimpleWidgetProvider">
             <intent-filter>
                 <!--这个必须声明-->
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
                 <!--这个和SimpleWidgetProvider中的CLICK_ACTION对应-->
                 <action android:name="top.cyqi.APPWIDGET_CLICK"/>
             </intent-filter>
             <!--指定AppWidgetProviderInfo资源XML文件-->
             <meta-data
                     android:name="android.appwidget.provider"
-                    android:resource="@xml/app_widget" />
+                    android:resource="@xml/app_widget"/>
         </receiver>
 
-        <receiver
-                android:name=".BootCompletedReceiver"
-                android:enabled="true"
-                android:exported="true"
-                android:priority="2147483647">
-            <intent-filter>
-                <!-- 开机广播 -->
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
+        <service android:name=".UpdateCodeJob"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
+                 android:exported="true"/>
 
-            <intent-filter>
-                <!-- 关机广播 -->
-                <action android:name="android.intent.action.ACTION_SHUTDOWN" />
-            </intent-filter>
-            <!-- 解锁广播 -->
-            <intent-filter>
-                <action android:name="android.intent.action.USER_PRESENT" />
-            </intent-filter>
-        </receiver>
+        <!--        <receiver-->
+        <!--                android:name=".BootCompletedReceiver"-->
+        <!--                android:enabled="true"-->
+        <!--                android:exported="true"-->
+        <!--                android:priority="2147483647">-->
+        <!--            <intent-filter>-->
+        <!--                &lt;!&ndash; 开机广播 &ndash;&gt;-->
+        <!--                <action android:name="android.intent.action.BOOT_COMPLETED" />-->
+        <!--            </intent-filter>-->
+
+        <!--            <intent-filter>-->
+        <!--                &lt;!&ndash; 关机广播 &ndash;&gt;-->
+        <!--                <action android:name="android.intent.action.ACTION_SHUTDOWN" />-->
+        <!--            </intent-filter>-->
+        <!--            &lt;!&ndash; 解锁广播 &ndash;&gt;-->
+        <!--            <intent-filter>-->
+        <!--                <action android:name="android.intent.action.USER_PRESENT" />-->
+        <!--            </intent-filter>-->
+        <!--        </receiver>-->
 
         <meta-data
                 android:name="xposedmodule"
-                android:value="true" />
+                android:value="true"/>
         <!--指定xposed的最小版本-->
         <meta-data
                 android:name="xposedminversion"
-                android:value="28+" />
+                android:value="28+"/>
         <!--插件的描述-->
         <meta-data
                 android:name="xposeddescription"
-                android:value="激活HOOK小米万象息屏" />
+                android:value="激活HOOK小米万象息屏"/>
     </application>
 
 </manifest>

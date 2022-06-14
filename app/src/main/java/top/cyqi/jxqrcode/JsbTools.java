@@ -215,7 +215,10 @@ public class JsbTools {
                     String expireTime = data.getString("expireTime");
                     String qrCode = data.getString("qrCode");
                     String certType = data.getString("certType");
+                    int expireTimeNumber = data.getInt("expireTimeNumber");
+
                     editor.putString("expireTime", expireTime);
+                    editor.putInt("expireTimeNumber", expireTimeNumber);
                     //格式化到期时间
                     @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     Date date = sdf.parse(expireTime);
@@ -234,6 +237,8 @@ public class JsbTools {
                     context.sendBroadcast(intent);
 
                     Log.d(TAG, "send_msg: 发送广播 -> " + intent);
+
+                    UpdateCodeJob.startJob(context);
                 } else {
                     throw new Exception(result_data.getString("msg"));
                 }
