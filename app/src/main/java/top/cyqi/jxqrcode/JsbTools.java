@@ -1,15 +1,16 @@
 package top.cyqi.jxqrcode;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import com.google.zxing.BarcodeFormat;
@@ -21,7 +22,9 @@ import okhttp3.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -233,6 +236,9 @@ public class JsbTools {
                     Log.d(TAG, "send_msg: 发送广播 -> " + intent);
 
                     UpdateCodeJob.startJob(context);
+
+                    save_Black_Bitmap(context,qrCode);
+
                 } else {
                     throw new Exception(result_data.getString("msg"));
                 }
@@ -404,5 +410,55 @@ public class JsbTools {
             Log.d(TAG, "二维码未超时无需获取");
         }
     }
+    public static void save_Black_Bitmap(Context context, String qrCode) {
+        Bitmap bpm = GetGreenCode(context,qrCode,600, Color.BLACK);
+        save_Bitmap(context, bpm);
+    }
+
+    public static void save_Bitmap(Context context, Bitmap bitmap) {
+        if (bitmap == null) {
+            return;
+        }
+        SharedPreferences preferences = context.getSharedPreferences("user_data", MODE_PRIVATE);
+        String bitmap_uri = preferences.getString("bitmap_uri", "");
+        SharedPreferences.Editor editor = preferences.edit();
+        if (TextUtils.isEmpty(bitmap_uri)) {
+            ContentResolver resolver = context.getContentResolver();
+            // 在主要的外部存储设备上查找所有图片文件。
+            Uri audioCollection;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                audioCollection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+            } else {
+                audioCollection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+            }
+            // 发表一首图片。
+            ContentValues newSongDetails = new ContentValues();
+            newSongDetails.put(MediaStore.Images.Media.DISPLAY_NAME, "jsb_qrcode.jpg");
+            // 为新歌的URI保留一个句柄，以防我们以后需要修改它。
+            Uri myFavoriteSongUri = resolver.insert(audioCollection, newSongDetails);
+            Log.d(TAG, "创建新的图片: " + myFavoriteSongUri);
+            bitmap_uri = myFavoriteSongUri.toString();
+            editor.putString("bitmap_uri", bitmap_uri);
+            editor.apply();
+        }
+        Uri baseUri = Uri.parse(bitmap_uri);
+        try {
+            ContentResolver localContentResolver = context.getContentResolver();
+            OutputStream outputStream = localContentResolver.openOutputStream(baseUri);
+            //将bitmap图片保存到Uri对应的数据节点中
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+            outputStream.flush();
+            outputStream.close();
+            Log.d(TAG, "保存图片: " + bitmap_uri);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            editor.putString("bitmap_uri", "");
+            editor.apply();
+            save_Bitmap(context,bitmap);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
 
