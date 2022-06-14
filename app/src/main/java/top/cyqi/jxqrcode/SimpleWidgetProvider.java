@@ -39,18 +39,18 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
             }
             isDisable = true;
 
-            if (!BootCompletedReceiver.already_boot) {
-                BootCompletedReceiver bootCompletedReceiver = new BootCompletedReceiver();
-                IntentFilter intentFilter = new IntentFilter();
-                //亮屏
-                intentFilter.addAction(Intent.ACTION_SCREEN_ON);
-                //息屏
-                intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
-                //解锁
-                intentFilter.addAction(Intent.ACTION_USER_PRESENT);
-                context.getApplicationContext().registerReceiver(bootCompletedReceiver, intentFilter);
-                BootCompletedReceiver.already_boot = true;
-            }
+//            if (!BootCompletedReceiver.already_boot) {
+//                BootCompletedReceiver bootCompletedReceiver = new BootCompletedReceiver();
+//                IntentFilter intentFilter = new IntentFilter();
+//                //亮屏
+//                intentFilter.addAction(Intent.ACTION_SCREEN_ON);
+//                //息屏
+//                intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+//                //解锁
+//                intentFilter.addAction(Intent.ACTION_USER_PRESENT);
+//                context.getApplicationContext().registerReceiver(bootCompletedReceiver, intentFilter);
+//                BootCompletedReceiver.already_boot = true;
+//            }
 
 
 
