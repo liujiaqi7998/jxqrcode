@@ -22,11 +22,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -128,10 +130,6 @@ public class JsbTools {
                     throw new Exception("getTime返回数据是空指针");
                 }
                 Log.d(TAG, "getTime的get返回数据 -> " + Objects.requireNonNull(response.body()).string());
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-                send_msg(-1, "吉祥码更新失败，网络异常！", callback);
-                return;
             } catch (IOException e) {
                 e.printStackTrace();
                 send_msg(-1, "吉祥码更新失败，网络异常！", callback);
@@ -179,10 +177,6 @@ public class JsbTools {
                     throw new Exception("更新健康信息失败：" + nn.getString("msg"));
                 }
                 Log.d(TAG, "saveRequestData的post返回数据  -> " + nn);
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-                send_msg(-1, "吉祥码更新失败，网络异常！", callback);
-                return;
             } catch (IOException e) {
                 e.printStackTrace();
                 send_msg(-1, "吉祥码更新失败，网络异常！", callback);
@@ -243,9 +237,6 @@ public class JsbTools {
                     throw new Exception(result_data.getString("msg"));
                 }
 
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-                send_msg(-1, "吉祥码更新失败，网络异常！", callback);
             } catch (IOException e) {
                 e.printStackTrace();
                 send_msg(-1, "吉祥码更新失败，网络异常！", callback);
