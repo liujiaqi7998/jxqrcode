@@ -61,7 +61,7 @@ public class UpdateCodeJob extends JobService {
     public boolean onStopJob(JobParameters params) {
         // 停止跟踪这些作业参数，因为我们已经完成工作。
         Log.i(TAG, "开始更新二维码job: " + params.getJobId());
-        JsbTools.auto_get(this);
+        JsbToolsUtil.auto_get(this);
         // 返回false来销毁这个工作
         return true;
     }

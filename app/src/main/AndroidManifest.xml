@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools" package="top.cyqi.jxqrcode">
+          package="top.cyqi.jxqrcode">
 
     <!--网络权限-->
     <uses-permission android:name="android.permission.INTERNET"/>
-    <!--屏幕解锁状态权限-->
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-    <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT"/>
     <!--前台服务-->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
@@ -32,7 +29,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".SimpleWidgetProvider">
+        <receiver android:name=".JsbWidgetProvider">
             <intent-filter>
                 <!--这个必须声明-->
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
@@ -48,26 +45,6 @@
         <service android:name=".UpdateCodeJob"
                  android:permission="android.permission.BIND_JOB_SERVICE"
                  android:exported="true"/>
-
-        <!--        <receiver-->
-        <!--                android:name=".BootCompletedReceiver"-->
-        <!--                android:enabled="true"-->
-        <!--                android:exported="true"-->
-        <!--                android:priority="2147483647">-->
-        <!--            <intent-filter>-->
-        <!--                &lt;!&ndash; 开机广播 &ndash;&gt;-->
-        <!--                <action android:name="android.intent.action.BOOT_COMPLETED" />-->
-        <!--            </intent-filter>-->
-
-        <!--            <intent-filter>-->
-        <!--                &lt;!&ndash; 关机广播 &ndash;&gt;-->
-        <!--                <action android:name="android.intent.action.ACTION_SHUTDOWN" />-->
-        <!--            </intent-filter>-->
-        <!--            &lt;!&ndash; 解锁广播 &ndash;&gt;-->
-        <!--            <intent-filter>-->
-        <!--                <action android:name="android.intent.action.USER_PRESENT" />-->
-        <!--            </intent-filter>-->
-        <!--        </receiver>-->
 
         <meta-data
                 android:name="xposedmodule"

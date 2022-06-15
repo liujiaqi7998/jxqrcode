@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         // 吉祥码图片
         ImageView imageView = findViewById(R.id.imageView);
         if (!qrCode.equals("0000")) {
-            Bitmap bmp = JsbTools.GetGreenCode(context, qrCode);
+            Bitmap bmp = ImageUtil.GetGreenCode(context, qrCode);
             imageView.setImageBitmap(bmp);
         } else {
             last_get_txt.setText("无法获取到吉祥码，请填写密钥");
@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
             SharedPreferences.Editor editor = preferences1.edit();
             editor.putString("encrypt", encrypt);
             editor.apply();
-            interval_time.set(JsbTools.check_interval_time(MainActivity.this));
+            interval_time.set(JsbToolsUtil.check_interval_time(MainActivity.this));
             if (interval_time.get() > 0) {
                 interval_time_txt.setText("请" + interval_time + "秒后获取");
                 if (timer != null) {
@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
                 interval_time_txt.setText("");
             }
 
-            JsbTools.getNetQrCode(MainActivity.this, encrypt, mHandler);
+            JsbToolsUtil.getNetQrCode(MainActivity.this, encrypt, mHandler);
         });
 
     }

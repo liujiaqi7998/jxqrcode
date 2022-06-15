@@ -14,21 +14,21 @@ public class hook implements IXposedHookLoadPackage {
     public static final String PACKAGE_NAME = "com.miui.aod";
 
     @Override
-    public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
+    public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam param) {
 
         //过滤包
-        if (!PACKAGE_NAME.equals(lpparam.packageName)) {
+        if (!PACKAGE_NAME.equals(param.packageName)) {
             return;
         }
 
 
         XposedHelpers.findAndHookMethod(Application.class, "attach", Context.class, new XC_MethodHook() {
             @Override
-            protected void afterHookedMethod(XC_MethodHook.MethodHookParam param) throws Throwable {
+            protected void afterHookedMethod(XC_MethodHook.MethodHookParam param) {
                 ClassLoader cl = ((Context) param.args[0]).getClassLoader();
-                Class<?> hookclass = null;
+                Class<?> HookClass;
                 try {
-                    hookclass = cl.loadClass("com.miui.aod.category.ImageSelectorCategoryInfo");
+                    HookClass = cl.loadClass("com.miui.aod.category.ImageSelectorCategoryInfo");
                 } catch (Exception e) {
                     XposedBridge.log("寻找com.miui.aod.category.ImageSelectorCategoryInfo失败");
                     return;
@@ -36,7 +36,7 @@ public class hook implements IXposedHookLoadPackage {
                 XposedBridge.log("寻找com.miui.aod.category.ImageSelectorCategoryInfo成功");
 
                 XposedHelpers.findAndHookMethod(
-                        hookclass,
+                        HookClass,
                         "setCroppedUriString",//方法名称
                         String.class,
                         new XC_MethodHook() {
@@ -45,12 +45,12 @@ public class hook implements IXposedHookLoadPackage {
                             protected void beforeHookedMethod(MethodHookParam param) {
                                 //Hook自定义功能
                                 XposedBridge.log("小奇吉祥码小工具：万象息屏调用了setCroppedUriString");
-                                param.args[0] = "/sdcard/" + Environment.DIRECTORY_PICTURES + "/" + "jsb_code.jpg";
+                                param.args[0] = "/sdcard/" + Environment.DIRECTORY_PICTURES + "/" + "jsb_qrcode.jpg";
                             }
                         });
 
                 XposedHelpers.findAndHookMethod(
-                        hookclass,
+                        HookClass,
                         "setUriString",//方法名称
                         String.class,
                         new XC_MethodHook() {
@@ -59,7 +59,7 @@ public class hook implements IXposedHookLoadPackage {
                             protected void beforeHookedMethod (MethodHookParam param) {
                                 //Hook自定义功能
                                 XposedBridge.log("小奇吉祥码小工具：万象息屏调用了setUriString");
-                                param.args[0] = "/sdcard/" + Environment.DIRECTORY_PICTURES + "/" + "jsb_code.jpg";
+                                param.args[0] = "/sdcard/" + Environment.DIRECTORY_PICTURES + "/" + "jsb_qrcode.jpg";
                             }
                         });
             }

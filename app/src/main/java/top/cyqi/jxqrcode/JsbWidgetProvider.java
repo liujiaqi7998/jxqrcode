@@ -14,16 +14,15 @@ import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class SimpleWidgetProvider extends AppWidgetProvider {
+public class JsbWidgetProvider extends AppWidgetProvider {
 
-    //定义一个action，这个action要在AndroidMainfest中去定义，不然识别不到，名字是自定义的
     private static final String CLICK_ACTION = "top.cyqi.APPWIDGET_CLICK";
     boolean isDisable = false;
-    Timer timer ;
+    Timer timer;
+
     //onReceive不存在widget生命周期中，它是用来接收广播，通知全局的
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -39,27 +38,12 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
             }
             isDisable = true;
 
-//            if (!BootCompletedReceiver.already_boot) {
-//                BootCompletedReceiver bootCompletedReceiver = new BootCompletedReceiver();
-//                IntentFilter intentFilter = new IntentFilter();
-//                //亮屏
-//                intentFilter.addAction(Intent.ACTION_SCREEN_ON);
-//                //息屏
-//                intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
-//                //解锁
-//                intentFilter.addAction(Intent.ACTION_USER_PRESENT);
-//                context.getApplicationContext().registerReceiver(bootCompletedReceiver, intentFilter);
-//                BootCompletedReceiver.already_boot = true;
-//            }
-
-
-
             SharedPreferences preferences = context.getSharedPreferences("user_data", Context.MODE_PRIVATE);
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.layout_widget);
-            int interval_time = JsbTools.check_interval_time(context);
+            int interval_time = JsbToolsUtil.check_interval_time(context);
             if (interval_time > 0) {
                 remoteViews.setTextViewText(R.id.wait_time_txt2, "请" + interval_time + "秒后获取");
-                appWidgetManager.updateAppWidget(new ComponentName(context, SimpleWidgetProvider.class), remoteViews);
+                appWidgetManager.updateAppWidget(new ComponentName(context, JsbWidgetProvider.class), remoteViews);
                 if (timer != null) {
                     return;
                 }
@@ -71,7 +55,7 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
                         timer.cancel();
                         timer = null;
                         remoteViews.setTextViewText(R.id.wait_time_txt2, "");
-                        appWidgetManager.updateAppWidget(new ComponentName(context, SimpleWidgetProvider.class), remoteViews);
+                        appWidgetManager.updateAppWidget(new ComponentName(context, JsbWidgetProvider.class), remoteViews);
                     }
                 }, interval_time * 1000L);
                 return;
@@ -79,7 +63,7 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
 
 
             remoteViews.setTextViewText(R.id.wait_time_txt2, "正在获取...");
-            appWidgetManager.updateAppWidget(new ComponentName(context, SimpleWidgetProvider.class), remoteViews);
+            appWidgetManager.updateAppWidget(new ComponentName(context, JsbWidgetProvider.class), remoteViews);
 
 
             Handler mHandler = new Handler(Looper.getMainLooper()) {
@@ -89,7 +73,7 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
                     if (msg.what == 0) {
                         String message = (String) msg.obj;
                         remoteViews.setTextViewText(R.id.wait_time_txt, message);
-                        appWidgetManager.updateAppWidget(new ComponentName(context, SimpleWidgetProvider.class), remoteViews);
+                        appWidgetManager.updateAppWidget(new ComponentName(context, JsbWidgetProvider.class), remoteViews);
                     }
                     if (msg.what == -1) {
                         String message = (String) msg.obj;
@@ -97,24 +81,24 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
                         remoteViews.setTextViewText(R.id.wait_time_txt2, "");
                         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
                         remoteViews.setImageViewResource(R.id.DesktopimageView, R.drawable.error_icon);
-                        appWidgetManager.updateAppWidget(new ComponentName(context, SimpleWidgetProvider.class), remoteViews);
+                        appWidgetManager.updateAppWidget(new ComponentName(context, JsbWidgetProvider.class), remoteViews);
                     }
                     if (msg.what == 1) {
                         String message = (String) msg.obj;
                         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-                        update_msg(appWidgetManager, context);
+                        update_msg(appWidgetManager, context, -1);
                     }
                 }
             };
-            String encrypt = preferences.getString("encrypt", "{\"encrypt\":\"Pxxxxxx\"}");
-            JsbTools.getNetQrCode(context, encrypt, mHandler);
+            String encrypt = preferences.getString("encrypt", "{\"encrypt\":\"0\"}");
+            JsbToolsUtil.getNetQrCode(context, encrypt, mHandler);
         } else {
-            update_msg(appWidgetManager, context);
+            update_msg(appWidgetManager, context, -1);
         }
     }
 
 
-    public void update_msg(AppWidgetManager appWidgetManager, Context context) {
+    public void update_msg(AppWidgetManager appWidgetManager, Context context, int appWidgetId) {
         SharedPreferences preferences = context.getSharedPreferences("user_data", Context.MODE_PRIVATE);
         String expireTime = preferences.getString("expireTime", "未获取");
         String qrCode = preferences.getString("qrCode", "0000");
@@ -123,14 +107,18 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
         //为对应的TextView设置文本
         remoteViews.setTextViewText(R.id.wait_time_txt, "吉祥码到期时间：" + expireTime);
         if (!qrCode.equals("0000")) {
-            Bitmap bmp = JsbTools.GetGreenCode(context, qrCode);
+            Bitmap bmp = ImageUtil.GetGreenCode(context, qrCode);
             remoteViews.setImageViewBitmap(R.id.DesktopimageView, bmp);
         } else {
             remoteViews.setTextViewText(R.id.wait_time_txt, "无法获取到吉祥码");
             remoteViews.setImageViewResource(R.id.DesktopimageView, R.drawable.error_icon);
         }
         remoteViews.setTextViewText(R.id.wait_time_txt2, "");
-        appWidgetManager.updateAppWidget(new ComponentName(context, SimpleWidgetProvider.class), remoteViews);
+        if (appWidgetId == -1) {
+            appWidgetManager.updateAppWidget(new ComponentName(context, JsbWidgetProvider.class), remoteViews);
+        } else {
+            appWidgetManager.updateAppWidget(appWidgetId, remoteViews);
+        }
     }
 
 
@@ -161,7 +149,7 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.layout_widget);
             Intent intentClick = new Intent();
             //这个必须要设置，不然点击效果会无效
-            intentClick.setClass(context, SimpleWidgetProvider.class);
+            intentClick.setClass(context, JsbWidgetProvider.class);
             intentClick.setAction(CLICK_ACTION);
 
             //PendingIntent表示的是一种即将发生的意图，区别于Intent它不是立即会发生的
@@ -169,18 +157,7 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
             //为布局文件中的按钮设置点击监听
             remoteViews.setOnClickPendingIntent(R.id.DesktopimageView, pendingIntent);
 
-            SharedPreferences preferences = context.getSharedPreferences("user_data", Context.MODE_PRIVATE);
-            String expireTime = preferences.getString("expireTime", "未获取");
-            String qrCode = preferences.getString("qrCode", "0000");
-            //为对应的TextView设置文本
-            remoteViews.setTextViewText(R.id.wait_time_txt, "吉祥码到期时间：" + expireTime);
-            if (!qrCode.equals("0000")) {
-                Bitmap bmp = JsbTools.GetGreenCode(context, qrCode);
-                remoteViews.setImageViewBitmap(R.id.DesktopimageView, bmp);
-            } else {
-                remoteViews.setTextViewText(R.id.wait_time_txt, "无法获取到吉祥码");
-                remoteViews.setImageViewResource(R.id.DesktopimageView, R.drawable.error_icon);
-            }
+            update_msg( appWidgetManager,context,appWidgetId);
 
             //告诉AppWidgetManager对当前应用程序小部件执行更新
             appWidgetManager.updateAppWidget(appWidgetId, remoteViews);
