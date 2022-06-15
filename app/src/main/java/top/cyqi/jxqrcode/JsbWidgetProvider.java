@@ -86,26 +86,26 @@ public class JsbWidgetProvider extends AppWidgetProvider {
                     if (msg.what == 1) {
                         String message = (String) msg.obj;
                         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-                        update_msg(appWidgetManager, context);
+                        update_msg(appWidgetManager, context, -1);
                     }
                 }
             };
             String encrypt = preferences.getString("encrypt", "{\"encrypt\":\"0\"}");
             JsbToolsUtil.getNetQrCode(context, encrypt, mHandler);
         } else {
-            update_msg(appWidgetManager, context);
+            update_msg(appWidgetManager, context, -1);
         }
     }
 
 
-    public void update_msg(AppWidgetManager appWidgetManager, Context context) {
+    public void update_msg(AppWidgetManager appWidgetManager, Context context, int appWidgetId) {
         SharedPreferences preferences = context.getSharedPreferences("user_data", Context.MODE_PRIVATE);
         String expireTime = preferences.getString("expireTime", "未获取");
         String qrCode = preferences.getString("qrCode", "0000");
         //因为点击按钮后要对布局中的文本进行更新，所以需要创建一个远程view
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.layout_widget);
         //为对应的TextView设置文本
-        remoteViews.setTextViewText(R.id.wait_time_txt, "有效期:" + expireTime);
+        remoteViews.setTextViewText(R.id.wait_time_txt, "吉祥码到期时间：" + expireTime);
         if (!qrCode.equals("0000")) {
             Bitmap bmp = ImageUtil.GetGreenCode(context, qrCode);
             remoteViews.setImageViewBitmap(R.id.DesktopimageView, bmp);
@@ -113,16 +113,12 @@ public class JsbWidgetProvider extends AppWidgetProvider {
             remoteViews.setTextViewText(R.id.wait_time_txt, "无法获取到吉祥码");
             remoteViews.setImageViewResource(R.id.DesktopimageView, R.drawable.error_icon);
         }
-
-        if (UpdateCodeJob.isServiceRunning("top.cyqi.jxqrcode.UpdateCodeJob",context)){
-            int last_time = preferences.getInt("expireTimeNumber", 0);
-            remoteViews.setTextViewText(R.id.wait_time_txt2, last_time + "秒后自动刷新");
-        }else{
-            remoteViews.setTextViewText(R.id.wait_time_txt2, "自动刷新未启动");
+        remoteViews.setTextViewText(R.id.wait_time_txt2, "");
+        if (appWidgetId == -1) {
+            appWidgetManager.updateAppWidget(new ComponentName(context, JsbWidgetProvider.class), remoteViews);
+        } else {
+            appWidgetManager.updateAppWidget(appWidgetId, remoteViews);
         }
-
-        appWidgetManager.updateAppWidget(new ComponentName(context, JsbWidgetProvider.class), remoteViews);
-
     }
 
 
@@ -160,10 +156,11 @@ public class JsbWidgetProvider extends AppWidgetProvider {
             @SuppressLint("UnspecifiedImmutableFlag") PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intentClick, PendingIntent.FLAG_UPDATE_CURRENT);
             //为布局文件中的按钮设置点击监听
             remoteViews.setOnClickPendingIntent(R.id.DesktopimageView, pendingIntent);
+
+            update_msg( appWidgetManager,context,appWidgetId);
+
             //告诉AppWidgetManager对当前应用程序小部件执行更新
             appWidgetManager.updateAppWidget(appWidgetId, remoteViews);
-
-            update_msg(appWidgetManager, context);
         }
     }
 

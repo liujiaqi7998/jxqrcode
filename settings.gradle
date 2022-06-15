@@ -1,8 +1,2 @@
 include ':app'
 rootProject.name = "小奇吉祥码小工具"
-dependencyResolutionManagement {
-    repositories {
-        // JitPack 远程仓库：https://jitpack.io
-        maven { url 'https://jitpack.io' }
-    }
-}

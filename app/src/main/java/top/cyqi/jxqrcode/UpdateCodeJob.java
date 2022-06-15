@@ -1,6 +1,5 @@
 package top.cyqi.jxqrcode;
 
-import android.app.ActivityManager;
 import android.app.job.JobInfo;
 import android.app.job.JobParameters;
 import android.app.job.JobScheduler;
@@ -11,27 +10,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import java.util.List;
-
 public class UpdateCodeJob extends JobService {
     private static final String TAG = "JSB_UpdateCodeJob";
-
-    /**
-     * 判断服务是否处于运行状态.
-     * @param ServiceName 服务名称
-     * @param context 上下文
-     * @return true代表正在运行，false代表服务没有正在运行
-     */
-    public static boolean isServiceRunning(String ServiceName,Context context){
-        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningServiceInfo> infos = am.getRunningServices(100);
-        for(ActivityManager.RunningServiceInfo info: infos){
-            if(ServiceName.equals(info.service.getClassName())){
-                return true;
-            }
-        }
-        return false;
-    }
 
     public static void startJob(Context context) {
         ComponentName jobService = new ComponentName(context, UpdateCodeJob.class);
