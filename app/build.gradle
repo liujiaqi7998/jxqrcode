@@ -29,6 +29,10 @@ android {
 }
 
 dependencies {
+
+    // 权限请求框架：https://github.com/getActivity/XXPermissions
+    implementation 'com.github.getActivity:XXPermissions:13.6'
+
     compileOnly 'de.robv.android.xposed:api:82'
     compileOnly 'de.robv.android.xposed:api:82:sources'
 
