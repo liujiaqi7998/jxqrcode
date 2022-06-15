@@ -10,15 +10,22 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
+import com.hjq.permissions.OnPermissionCallback;
+import com.hjq.permissions.Permission;
+import com.hjq.permissions.XXPermissions;
 
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "JSB_MainActivity";
 
     // 刷新界面
     @SuppressLint("SetTextI18n")
@@ -27,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
         String encrypt = preferences.getString("encrypt", "{\"encrypt\":\"Pxxxxxx\"}");
         String expireTime = preferences.getString("expireTime", "未获取");
         String qrCode = preferences.getString("qrCode", "0000");
+
 
         // 吉祥码到期时间文本框
         TextView last_get_txt = findViewById(R.id.last_get_txt);
@@ -44,6 +52,14 @@ public class MainActivity extends AppCompatActivity {
         } else {
             last_get_txt.setText("无法获取到吉祥码，请填写密钥");
             imageView.setImageResource(R.drawable.error_icon);
+        }
+
+        TextView interval_time_txt = findViewById(R.id.interval_time_txt);
+        if (UpdateCodeJob.isServiceRunning("top.cyqi.jxqrcode.UpdateCodeJob",context)){
+            int last_time = preferences.getInt("expireTimeNumber", 0);
+            interval_time_txt.setText(last_time + "秒后自动刷新");
+        }else{
+            interval_time_txt.setText("自动刷新未启动");
         }
     }
 
@@ -145,6 +161,28 @@ public class MainActivity extends AppCompatActivity {
             }
 
             JsbToolsUtil.getNetQrCode(MainActivity.this, encrypt, mHandler);
+        });
+
+
+        // 开启后台权限
+        Button Background_button = findViewById(R.id.Background_button);
+        Background_button.setOnClickListener(v -> {
+            Toast.makeText(MainActivity.this, "请允许“后台运行”，选择“无限制”", Toast.LENGTH_SHORT).show();
+            XXPermissions.with(this)
+                    // 申请单个权限
+                    .permission(Permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                    .request(new OnPermissionCallback() {
+
+                        @Override
+                        public void onGranted(List<String> permissions, boolean all) {
+                            Toast.makeText(MainActivity.this, "设置“后台运行”成功", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onDenied(List<String> permissions, boolean never) {
+                            Toast.makeText(MainActivity.this, "设置“后台运行”失败", Toast.LENGTH_SHORT).show();
+                        }
+                    });
         });
 
     }

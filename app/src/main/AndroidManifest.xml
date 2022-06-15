@@ -8,8 +8,11 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <!--Android Q之后不需要存储权限，完全使用MediaStore API来实现-->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
                      android:maxSdkVersion="28" />
+    <!--电池优化-->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <application
             android:allowBackup="true"
