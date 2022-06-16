@@ -19,6 +19,7 @@ import com.hjq.permissions.OnPermissionCallback;
 import com.hjq.permissions.Permission;
 import com.hjq.permissions.XXPermissions;
 
+import java.io.File;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -180,6 +181,13 @@ public class MainActivity extends AppCompatActivity {
         Button Background_button = findViewById(R.id.Background_button);
         Background_button.setOnClickListener(v -> {
             Toast.makeText(MainActivity.this, "请允许“后台运行”，选择“无限制”", Toast.LENGTH_SHORT).show();
+            @SuppressLint("SdCardPath") File file = new File( "/sdcard/" + Environment.DIRECTORY_PICTURES + "/" + "jsb_qrcode.jpg");
+            if (file.exists()) {
+                if(file.delete())
+                    Log.d(TAG, "删除二维码图片文件成功");
+                else
+                    Log.d(TAG, "删除二维码图片文件失败");
+            }
             XXPermissions.with(this)
                     // 申请单个权限
                     .permission(Permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
@@ -232,21 +240,11 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra("app_package", getPackageName());
                     intent.putExtra("app_uid", getApplicationInfo().uid);
 
-                    // 小米6 -MIUI9.6-8.0.0系统，是个特例，通知设置界面只能控制"允许使用通知圆点"——然而这个玩意并没有卵用，我想对雷布斯说：I'm not ok!!!
-                    //  if ("MI 6".equals(Build.MODEL)) {
-                    //      intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                    //      Uri uri = Uri.fromParts("package", getPackageName(), null);
-                    //      intent.setData(uri);
-                    //      // intent.setAction("com.android.settings/.SubSettings");
-                    //  }
                     startActivity(intent);
                 } catch (Exception e) {
                     e.printStackTrace();
                     // 出现异常则跳转到应用设置界面：锤子坚果3——OC105 API25
                     Intent intent = new Intent();
-
-                    //下面这种方案是直接跳转到当前应用的设置界面。
-                    //https://blog.csdn.net/ysy950803/article/details/71910806
                     intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                     Uri uri = Uri.fromParts("package", getPackageName(), null);
                     intent.setData(uri);
