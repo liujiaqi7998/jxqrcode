@@ -5,6 +5,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.*;
+import android.os.Bundle;
 import android.util.Log;
 import android.widget.RemoteViews;
 import androidx.core.app.NotificationCompat;
@@ -24,14 +25,14 @@ public class BootCompletedReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Intent serviceIntent = new Intent(context, NoticeService.class);
+        SharedPreferences preferences = context.getSharedPreferences("user_data", MODE_PRIVATE);
+        boolean NoticeShow = preferences.getBoolean("NoticeShow", false);
         switch (intent.getAction()) {
             case Intent.ACTION_SHUTDOWN:
                 Log.d(TAG, "手机关机了");
                 break;
             case ACTION_SCREEN_ON:
                 Log.d(TAG, "亮屏");
-                SharedPreferences preferences = context.getSharedPreferences("user_data", MODE_PRIVATE);
-                boolean NoticeShow = preferences.getBoolean("NoticeShow", false);
                 if (NoticeShow) {
                     //创建通知
                     context.startService(serviceIntent);
@@ -39,6 +40,10 @@ public class BootCompletedReceiver extends BroadcastReceiver {
                 break;
             case ACTION_SCREEN_OFF:
                 Log.d(TAG, "息屏");
+                if (NoticeShow) {
+                    //创建通知
+                    context.startService(serviceIntent);
+                }
                 break;
             case ACTION_USER_PRESENT:
                 Log.d(TAG, "手机解锁");

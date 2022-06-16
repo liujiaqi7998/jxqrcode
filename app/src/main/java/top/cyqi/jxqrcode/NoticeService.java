@@ -20,8 +20,7 @@ public class NoticeService extends Service {
 
     private static final String TAG = "JSB_NoticeService";
 
-
-
+    
 
     public void createMusicNotification(Context context) {
 
@@ -39,13 +38,16 @@ public class NoticeService extends Service {
         builder.setSmallIcon(R.mipmap.ic_launcher);
         builder.setOngoing(true);//代表是常驻的，主要是配合服务
 
-
         SharedPreferences preferences = context.getSharedPreferences("user_data", Context.MODE_PRIVATE);
         String expireTime = preferences.getString("expireTime", "未获取");
         String qrCode = preferences.getString("qrCode", "0000");
 
         builder.setPriority(NotificationCompat.PRIORITY_HIGH);
         builder.setSmallIcon(R.mipmap.ic_launcher);
+
+        builder.setSound(null);//关闭声音
+        builder.setVibrate(null);//关闭震动
+        builder.setLights(0, 0, 0);//关闭LED灯
 
         if (!qrCode.equals("0000")) {
             builder.setContentTitle("有效期:" + expireTime);
