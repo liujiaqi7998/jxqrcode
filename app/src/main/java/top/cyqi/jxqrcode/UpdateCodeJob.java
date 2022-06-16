@@ -1,6 +1,6 @@
 package top.cyqi.jxqrcode;
 
-import android.app.ActivityManager;
+import android.app.*;
 import android.app.job.JobInfo;
 import android.app.job.JobParameters;
 import android.app.job.JobScheduler;
@@ -9,7 +9,12 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
+import android.widget.RemoteViews;
+import androidx.annotation.DrawableRes;
+import androidx.core.app.NotificationCompat;
 
 import java.util.List;
 
@@ -32,6 +37,8 @@ public class UpdateCodeJob extends JobService {
         }
         return false;
     }
+
+
 
     public static void startJob(Context context) {
         ComponentName jobService = new ComponentName(context, UpdateCodeJob.class);

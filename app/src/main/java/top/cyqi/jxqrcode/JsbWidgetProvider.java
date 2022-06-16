@@ -1,6 +1,9 @@
 package top.cyqi.jxqrcode;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -13,6 +16,7 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
+import androidx.core.app.NotificationCompat;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -22,6 +26,8 @@ public class JsbWidgetProvider extends AppWidgetProvider {
     private static final String CLICK_ACTION = "top.cyqi.APPWIDGET_CLICK";
     boolean isDisable = false;
     Timer timer;
+
+
 
     //onReceive不存在widget生命周期中，它是用来接收广播，通知全局的
     @Override
@@ -37,6 +43,20 @@ public class JsbWidgetProvider extends AppWidgetProvider {
                 return;
             }
             isDisable = true;
+
+
+            if (!BootCompletedReceiver.already_boot) {
+                BootCompletedReceiver bootCompletedReceiver = new BootCompletedReceiver();
+                IntentFilter intentFilter = new IntentFilter();
+                //亮屏
+                intentFilter.addAction(Intent.ACTION_SCREEN_ON);
+                //息屏
+                intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+                //解锁
+                intentFilter.addAction(Intent.ACTION_USER_PRESENT);
+                context.getApplicationContext().registerReceiver(bootCompletedReceiver, intentFilter);
+                BootCompletedReceiver.already_boot = true;
+            }
 
             SharedPreferences preferences = context.getSharedPreferences("user_data", Context.MODE_PRIVATE);
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.layout_widget);

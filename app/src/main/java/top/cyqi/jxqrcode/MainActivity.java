@@ -3,14 +3,16 @@ package top.cyqi.jxqrcode;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
+import android.net.Uri;
+import android.os.*;
+import android.provider.Settings;
 import android.util.Log;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import com.hjq.permissions.OnPermissionCallback;
@@ -22,10 +24,14 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static android.app.Notification.EXTRA_CHANNEL_ID;
+import static android.provider.Settings.EXTRA_APP_PACKAGE;
+
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "JSB_MainActivity";
+
 
     // 刷新界面
     @SuppressLint("SetTextI18n")
@@ -34,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         String encrypt = preferences.getString("encrypt", "{\"encrypt\":\"Pxxxxxx\"}");
         String expireTime = preferences.getString("expireTime", "未获取");
         String qrCode = preferences.getString("qrCode", "0000");
-
+        Boolean NoticeShow = preferences.getBoolean("NoticeShow", false);
 
         // 吉祥码到期时间文本框
         TextView last_get_txt = findViewById(R.id.last_get_txt);
@@ -54,13 +60,19 @@ public class MainActivity extends AppCompatActivity {
             imageView.setImageResource(R.drawable.error_icon);
         }
 
+        // 后台刷新服务是否正常
         TextView interval_time_txt = findViewById(R.id.interval_time_txt);
-        if (UpdateCodeJob.isServiceRunning("top.cyqi.jxqrcode.UpdateCodeJob",context)){
+        if (UpdateCodeJob.isServiceRunning("top.cyqi.jxqrcode.UpdateCodeJob", context)) {
             int last_time = preferences.getInt("expireTimeNumber", 0);
             interval_time_txt.setText(last_time + "秒后自动刷新");
-        }else{
+        } else {
             interval_time_txt.setText("自动刷新未启动");
         }
+
+        // 是否开启锁屏通知提醒
+        Switch switch_notice = findViewById(R.id.notice_switch);
+        switch_notice.setChecked(NoticeShow);
+
     }
 
     Timer timer;
@@ -185,5 +197,72 @@ public class MainActivity extends AppCompatActivity {
                     });
         });
 
+        // 开启锁屏通知
+        Switch switch_notice = findViewById(R.id.notice_switch);
+        switch_notice.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            boolean NoticeShow;
+            if (isChecked) {
+                NoticeShow = true;
+                //申请权限
+                XXPermissions.with(this)
+                        .permission(Permission.NOTIFICATION_SERVICE)
+                        .request(new OnPermissionCallback() {
+
+                            @Override
+                            public void onGranted(List<String> permissions, boolean all) {
+                                Toast.makeText(MainActivity.this, "开启锁屏通知成功", Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onDenied(List<String> permissions, boolean never) {
+                                Toast.makeText(MainActivity.this, "开启锁屏通知失败", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                Toast.makeText(MainActivity.this, "请打开“锁屏通知权限”", Toast.LENGTH_SHORT).show();
+                try {
+                    // 根据isOpened结果，判断是否需要提醒用户跳转AppInfo页面，去打开App通知权限
+                    Intent intent = new Intent();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        intent.setAction(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+                        intent.putExtra(EXTRA_APP_PACKAGE, getPackageName());
+                        intent.putExtra(EXTRA_CHANNEL_ID, getApplicationInfo().uid);
+                    }
+
+                    //这种方案适用于 API21——25，即 5.0——7.1 之间的版本可以使用
+                    intent.putExtra("app_package", getPackageName());
+                    intent.putExtra("app_uid", getApplicationInfo().uid);
+
+                    // 小米6 -MIUI9.6-8.0.0系统，是个特例，通知设置界面只能控制"允许使用通知圆点"——然而这个玩意并没有卵用，我想对雷布斯说：I'm not ok!!!
+                    //  if ("MI 6".equals(Build.MODEL)) {
+                    //      intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    //      Uri uri = Uri.fromParts("package", getPackageName(), null);
+                    //      intent.setData(uri);
+                    //      // intent.setAction("com.android.settings/.SubSettings");
+                    //  }
+                    startActivity(intent);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    // 出现异常则跳转到应用设置界面：锤子坚果3——OC105 API25
+                    Intent intent = new Intent();
+
+                    //下面这种方案是直接跳转到当前应用的设置界面。
+                    //https://blog.csdn.net/ysy950803/article/details/71910806
+                    intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    Uri uri = Uri.fromParts("package", getPackageName(), null);
+                    intent.setData(uri);
+                    startActivity(intent);
+                }
+            } else {
+                NoticeShow = false;
+            }
+            SharedPreferences preferences1 = getSharedPreferences("user_data", MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences1.edit();
+            editor.putBoolean("NoticeShow", NoticeShow);
+            editor.apply();
+        });
     }
+
+
+
+
 }

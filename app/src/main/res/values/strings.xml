@@ -5,4 +5,6 @@
     <string name="get_but_txt">获取二维码</string>
     <string name="expire_txt">到期时间：</string>
     <string name="todo">TODO</string>
+    <string name="permissions_but_txt">开启后台权限</string>
+    <string name="notice_show_but_txt">开启锁屏通知栏显示</string>
 </resources>
