@@ -46,6 +46,7 @@ public class UpdateCodeJob extends JobService {
         context.startService(service);
         SharedPreferences preferences = context.getSharedPreferences("user_data", Context.MODE_PRIVATE);
         int expireTimeNumber = preferences.getInt("expireTimeNumber", 300);
+        expireTimeNumber = expireTimeNumber - 30; // 减去30秒，去除刷新带来的延迟
         Log.d(TAG, "启动一个Job延迟" + expireTimeNumber + "秒");
 
         JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
@@ -88,7 +89,9 @@ public class UpdateCodeJob extends JobService {
     public boolean onStopJob(JobParameters params) {
         // 停止跟踪这些作业参数，因为我们已经完成工作。
         Log.i(TAG, "开始更新二维码job: " + params.getJobId());
-        JsbToolsUtil.auto_get(this);
+        SharedPreferences preferences = this.getSharedPreferences("user_data", MODE_PRIVATE);
+        String encrypt = preferences.getString("encrypt", "{\"encrypt\":\"Pxxxxxx\"}");
+        JsbToolsUtil.getNetQrCode(this, encrypt, null);
         // 返回false来销毁这个工作
         return true;
     }
